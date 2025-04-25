@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"sync"
 
 	"github.com/dmikhr/pdfjuicer/internal/input"
 	"github.com/gen2brain/go-fitz"
@@ -30,27 +31,36 @@ func main() {
 	workersNumDefault := runtime.NumCPU()
 
 	// ImgFormatValidator ImgSizeValidator
-	pflag.StringVarP(&sourcePath, "source", "s", "test.pdf", "Specify path to source file (pdf/pptx)")
+	pflag.StringVarP(&sourcePath, "source", "s", "test.pdf",
+		"Specify path to source file (pdf/pptx)")
 	pflag.StringVarP(&saveDir, "output", "o", "", "Specify output folder path")
 
 	// FilenameValidator
 	pflag.StringVarP(&prefix, "prefix", "p", "page", "Prefix for a filename")
 	pflag.StringVarP(&postfix, "postfix", "x", "", "Postfix for a filename")
 
-	pflag.StringVarP(&imgSize, "size", "S", "", "Specify image size, example 640x480, if not specified will output default size from document")
-	pflag.Float64VarP(&imgScaleDown, "scale", "C", imgScaleDownDefault, "Specify image scaling down factor, example 5, for example 5 means output image will be 5 times smaller than original image")
-	pflag.StringVarP(&imgType, "format", "F", "png", "Specify output image format (png/jpg)")
+	pflag.StringVarP(&imgSize, "size", "S", "",
+		"Specify image size, example 640x480, if not specified will output default size from document")
+	pflag.Float64VarP(&imgScaleDown, "scale", "C", imgScaleDownDefault,
+		"Specify image scaling down factor, example 5, for example 5 means output image will be 5 times smaller than original image")
+	pflag.StringVarP(&imgType, "format", "F", "png",
+		"Specify output image format (png/jpg)")
 
-	pflag.StringVarP(&pages, "pages", "P", "", "Use this flag to extract specific pages, example: 2,3,6-8,10")
+	pflag.StringVarP(&pages, "pages", "P", "",
+		"Use this flag to extract specific pages, example: 2,3,6-8,10")
 
 	pflag.BoolVarP(&createThumbnails, "thumb", "t", false, "enable thumbnails generation")
-	pflag.Float64VarP(&thumbScaleDown, "tscale", "c", thumbScaleDownDefault, "Specify thumbnails scaling down factor, for example 5 means thumbnail will be 5 times smaller than original image")
-	pflag.StringVarP(&thumbnailsSize, "tsize", "z", "", "Specify thumbnails size e.g. 64x64")
+	pflag.Float64VarP(&thumbScaleDown, "tscale", "c", thumbScaleDownDefault,
+		"Specify thumbnails scaling down factor, for example 5 means thumbnail will be 5 times smaller than original image")
+	pflag.StringVarP(&thumbnailsSize, "tsize", "z", "",
+		"Specify thumbnails size e.g. 64x64")
 
-	pflag.BoolVarP(&force, "force", "f", false, "Don't ask for rewriting is directory contains files")
+	pflag.BoolVarP(&force, "force", "f", false,
+		"Don't ask for rewriting is directory contains files")
 	pflag.BoolVar(&versionFlag, "version", false, "Show version")
 
-	pflag.IntVarP(&workersNum, "workers", "w", workersNumDefault, "Set number of anynchronous workers")
+	pflag.IntVarP(&workersNum, "workers", "w", workersNumDefault,
+		"Set number of anynchronous workers")
 
 	pflag.Parse()
 
@@ -82,6 +92,8 @@ func main() {
 	if workersNum <= 0 {
 		log.Println("Number of workers must be at least 1")
 		return
+	} else {
+		log.Println("Number of workers is ", workersNum)
 	}
 
 	log.Println(fmt.Sprintf("Setting image format to %s, save folder: %s", imgType, saveDir))
@@ -96,7 +108,7 @@ func main() {
 		}
 		log.Println(fmt.Sprintf("Extracted images size will be set to: %dx%d", sizeX, sizeY))
 	} else if imgScaleDown != 1.0 {
-		log.Println(fmt.Sprintf("Extracted images size will be resized with scaling down factor  %f ", imgScaleDown))
+		log.Println(fmt.Sprintf("Extracted images size will be scaled down with factor %.2f ", imgScaleDown))
 	}
 
 	if thumbnailsSize != "" {
@@ -105,9 +117,9 @@ func main() {
 			log.Println(fmt.Sprintf("Invalid thumbnail size (example: 120x256): %s", err))
 			return
 		}
-		log.Println(fmt.Sprintf("Thumbnails  size will be set to: %dx%d", thumbSizeX, thumbSizeY))
+		log.Println(fmt.Sprintf("Thumbnails size will be set to: %dx%d", thumbSizeX, thumbSizeY))
 	} else if imgScaleDown != 1.0 {
-		log.Println(fmt.Sprintf("Thumbnails size will be resized with scaling down factor  %f ", imgScaleDown))
+		log.Println(fmt.Sprintf("Thumbnails will be resized with scaling down factor %.2f ", imgScaleDown))
 	}
 
 	if versionFlag {
@@ -141,14 +153,12 @@ func main() {
 		}
 	}
 
-	// todo logic with savedir if not exist and thumbnails dir
 	var savePath string
 	if createThumbnails {
 		savePath = filepath.Join(workDir, thumbnailsDir, saveDir)
 	} else {
 		savePath = filepath.Join(workDir, saveDir)
 	}
-	// todo check if folder exists, and if not empty
 	err = os.MkdirAll(savePath, 0755)
 	if err != nil {
 		log.Fatal(err)
@@ -171,12 +181,25 @@ func main() {
 		thumbnails: thumbnails,
 	}
 
-	// Extract pages as images
+	var wg sync.WaitGroup
+	numJobs := len(pagesToExtract)
+	jobs := make(chan Job, numJobs)
+	jobErrors := make(chan JobErr, numJobs)
+
+	for w := 1; w <= workersNum; w++ {
+		wg.Add(1)
+		go worker(w, jobs, jobErrors, &wg)
+	}
 	for _, pageNum := range pagesToExtract {
-		err = extractPage(page, pageNum-1)
-		if err != nil {
-			log.Println("Error extracting page #", pageNum, err)
+		jobs <- Job{page: page, pageNum: pageNum - 1}
+	}
+	close(jobs)
+	wg.Wait()
+	close(jobErrors)
+
+	for jobErr := range jobErrors {
+		if jobErr.err != nil {
+			log.Printf("Worker %d failed: %v", jobErr.workerID, jobErr.err)
 		}
-		log.Println(fmt.Sprintf("Page %d extracted to %s", pageNum, saveDir))
 	}
 }
