@@ -15,7 +15,7 @@ type JobErr struct {
 	workerID int
 }
 
-func worker(id int, jobs <-chan Job, errors chan<- JobErr, wg *sync.WaitGroup) {
+func worker(id int, jobs <-chan Job, errors chan<- JobErr, done chan<- struct{}, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	defer func() {
@@ -29,5 +29,6 @@ func worker(id int, jobs <-chan Job, errors chan<- JobErr, wg *sync.WaitGroup) {
 		if err != nil {
 			errors <- JobErr{err: err, workerID: id}
 		}
+		done <- struct{}{}
 	}
 }
