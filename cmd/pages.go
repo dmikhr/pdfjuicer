@@ -5,6 +5,7 @@ import (
 	"image"
 	"image/jpeg"
 	"image/png"
+	"log"
 	"os"
 	"path/filepath"
 
@@ -34,57 +35,60 @@ type Thumbnail struct {
 	sizeY     int
 }
 
-func extractPage(p Page, pageNum int) error {
+func (ps *Page) extract(pageNum int) error {
 	// extracting source image
-	srcImg, err := p.doc.Image(pageNum)
+	srcImg, err := ps.doc.Image(pageNum)
 	if err != nil {
 		return err
 	}
 
 	// creating file for dst image
-	f, err := os.Create(filepath.Join(p.savePath,
-		fmt.Sprintf("%s%03d%s.%s", p.prefix, pageNum+1, p.postfix, p.imgType)))
+	imageFName := fmt.Sprintf("%s%03d%s.%s", ps.prefix, pageNum+1, ps.postfix, ps.imgType)
+	imagePath := filepath.Join(ps.savePath, imageFName)
+	f, err := os.Create(imagePath)
 	if err != nil {
 		return err
 	}
 
 	var dstImg, thumbnail *image.RGBA
-	if p.scaleDown != imgScaleDownDefault {
-		dstImg = imageutils.ScaleResize(srcImg, p.scaleDown)
-	} else if p.sizeX > 0 && p.sizeY > 0 {
-		dstImg = imageutils.Resize(srcImg, p.sizeX, p.sizeY)
+	if ps.scaleDown != imgScaleDownDefault {
+		dstImg = imageutils.ScaleResize(srcImg, ps.scaleDown)
+	} else if ps.sizeX > 0 && ps.sizeY > 0 {
+		dstImg = imageutils.Resize(srcImg, ps.sizeX, ps.sizeY)
 	} else {
 		fmt.Println("Saving img without resizing")
 		dstImg = srcImg
 	}
 
-	err = saveImg(f, p.imgType, dstImg)
+	err = saveImg(f, ps.imgType, dstImg)
 	if err != nil {
 		return err
 	}
 
-	if p.thumbnails.isActive {
-		f, err = os.Create(filepath.Join(p.savePath, thumbnailsDir,
-			fmt.Sprintf("thumbnail_%03d.%s", pageNum+1, p.imgType)))
+	if ps.thumbnails.isActive {
+		f, err = os.Create(filepath.Join(ps.savePath, thumbnailsDir,
+			fmt.Sprintf("thumbnail_%03d.%s", pageNum+1, ps.imgType)))
 		if err != nil {
 			return err
 		}
 
-		if p.thumbnails.scaleDown != thumbScaleDownDefault {
-			thumbnail = imageutils.ScaleResize(srcImg, p.thumbnails.scaleDown)
-		} else if p.thumbnails.sizeX > 0 && p.thumbnails.sizeY > 0 {
-			thumbnail = imageutils.Resize(srcImg, p.sizeX, p.sizeY)
+		if ps.thumbnails.scaleDown != thumbScaleDownDefault {
+			thumbnail = imageutils.ScaleResize(srcImg, ps.thumbnails.scaleDown)
+		} else if ps.thumbnails.sizeX > 0 && ps.thumbnails.sizeY > 0 {
+			thumbnail = imageutils.Resize(srcImg, ps.sizeX, ps.sizeY)
 		} else {
 			fmt.Println("Saving thumbnail without resizing")
 			thumbnail = srcImg
 		}
-		err = saveImg(f, p.imgType, thumbnail)
+		err = saveImg(f, ps.imgType, thumbnail)
 		if err != nil {
 			return err
 		}
 	}
 
 	f.Close()
+
+	log.Printf("Page %d extracted to %s", pageNum+1, imageFName)
 
 	return nil
 }
