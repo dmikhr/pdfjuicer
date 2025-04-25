@@ -13,15 +13,20 @@ import (
 )
 
 const (
-	version       = "1.0.0"
-	workersNumber = 4
+	version               = "1.0.0"
+	workersNumber         = 4
+	imgScaleDownDefault   = 1.0
+	thumbScaleDownDefault = 10.0
 )
 
 func main() {
-	var sourcePath, saveDir, imgType, imgSize, pages, thumbnailsScale, prefix, postfix string
+	var sourcePath, saveDir, imgType, imgSize, pages, thumbnailsSize, prefix, postfix string
 	var imgScaleDown, thumbScaleDown float64
 	var createThumbnails, force, versionFlag bool
 	var workersNum int
+	var sizeX, sizeY, thumbSizeX, thumbSizeY int
+	var err error
+
 	workersNumDefault := runtime.NumCPU()
 
 	// ImgFormatValidator ImgSizeValidator
@@ -33,14 +38,14 @@ func main() {
 	pflag.StringVarP(&postfix, "postfix", "x", "", "Postfix for a filename")
 
 	pflag.StringVarP(&imgSize, "size", "S", "", "Specify image size, example 640x480, if not specified will output default size from document")
-	pflag.Float64VarP(&imgScaleDown, "scale", "C", 1.0, "Specify image scaling down factor, example 5, for example 5 means output image will be 5 times smaller than original image")
+	pflag.Float64VarP(&imgScaleDown, "scale", "C", imgScaleDownDefault, "Specify image scaling down factor, example 5, for example 5 means output image will be 5 times smaller than original image")
 	pflag.StringVarP(&imgType, "format", "F", "png", "Specify output image format (png/jpg)")
 
 	pflag.StringVarP(&pages, "pages", "P", "", "Use this flag to extract specific pages, example: 2,3,6-8,10")
 
 	pflag.BoolVarP(&createThumbnails, "thumb", "t", false, "enable thumbnails generation")
-	pflag.Float64VarP(&thumbScaleDown, "tscale", "c", 10.0, "Specify thumbnails scaling down factor, for example 5 means thumbnail will be 5 times smaller than original image")
-	pflag.StringVarP(&thumbnailsScale, "tsize", "z", "64x64", "Specify thumbnails size e.g. 64x64")
+	pflag.Float64VarP(&thumbScaleDown, "tscale", "c", thumbScaleDownDefault, "Specify thumbnails scaling down factor, for example 5 means thumbnail will be 5 times smaller than original image")
+	pflag.StringVarP(&thumbnailsSize, "tsize", "z", "", "Specify thumbnails size e.g. 64x64")
 
 	pflag.BoolVarP(&force, "force", "f", false, "Don't ask for rewriting is directory contains files")
 	pflag.BoolVar(&versionFlag, "version", false, "Show version")
@@ -49,9 +54,60 @@ func main() {
 
 	pflag.Parse()
 
+	if imgSize != "" && imgScaleDown != imgScaleDownDefault {
+		log.Println(fmt.Sprintf("Choose either scaling factor (--scale) or exact image size for resizing (--size)"))
+		return
+	}
+
+	if err := input.ImgFormatValidator(imgType); err != nil {
+		log.Println(fmt.Sprintf("Unsupported image type: %s", imgType))
+		return
+	}
+	if thumbnailsSize != "" && thumbScaleDown != thumbScaleDownDefault {
+		log.Println(fmt.Sprintf("Choose either scaling factor (--scale) or exact image size for resizing (--size)"))
+		return
+	}
+
+	if prefix != "" {
+		if err = input.FilenameValidator(prefix); err != nil {
+			log.Println(fmt.Sprintf("Invalid prefix: %s. Error: %s", prefix, err))
+		}
+	}
+	if postfix != "" {
+		if err = input.FilenameValidator(postfix); err != nil {
+			log.Println(fmt.Sprintf("Invalid postfix: %s. Error: %s", postfix, err))
+		}
+	}
+
+	if workersNum <= 0 {
+		log.Println("Number of workers must be at least 1")
+		return
+	}
+
 	log.Println(fmt.Sprintf("Setting image format to %s, save folder: %s", imgType, saveDir))
 	if pages != "" {
-		log.Println(fmt.Sprintf("Extracting selected pages: %s", pages))
+		log.Println(fmt.Sprintf("Selected pages will be extracted: %s", pages))
+	}
+	if imgSize != "" {
+		sizeX, sizeY, err = input.ImgSizeExtractor(imgSize)
+		if err != nil {
+			log.Println(fmt.Sprintf("Invalid image size (example: 120x256): %s", err))
+			return
+		}
+		log.Println(fmt.Sprintf("Extracted images size will be set to: %dx%d", sizeX, sizeY))
+	} else if imgScaleDown != 1.0 {
+		log.Println(fmt.Sprintf("Extracted images size will be resized with scaling down factor  %f ", imgScaleDown))
+	}
+
+	if thumbnailsSize != "" {
+		thumbSizeX, thumbSizeY, err = input.ImgSizeExtractor(thumbnailsSize)
+		if err != nil {
+			log.Println(fmt.Sprintf("Invalid thumbnail size (example: 120x256): %s", err))
+			return
+		}
+		log.Println(fmt.Sprintf("Thumbnails  size will be set to: %dx%d", thumbSizeX, thumbSizeY))
+	} else if imgScaleDown != 1.0 {
+		log.Println(fmt.Sprintf("Thumbnails size will be resized with scaling down factor  %f ", imgScaleDown))
 	}
 
 	if versionFlag {
@@ -86,14 +142,14 @@ func main() {
 	}
 
 	// todo logic with savedir if not exist and thumbnails dir
-	var createDir string
+	var savePath string
 	if createThumbnails {
-		createDir = filepath.Join(workDir, thumbnailsDir, saveDir)
+		savePath = filepath.Join(workDir, thumbnailsDir, saveDir)
 	} else {
-		createDir = filepath.Join(workDir, saveDir)
+		savePath = filepath.Join(workDir, saveDir)
 	}
 	// todo check if folder exists, and if not empty
-	err = os.MkdirAll(createDir, 0755)
+	err = os.MkdirAll(savePath, 0755)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -106,10 +162,12 @@ func main() {
 	page := Page{
 		doc:        doc,
 		imgType:    imgType,
-		savePath:   filepath.Join(workDir, saveDir),
+		savePath:   savePath,
 		prefix:     prefix,
 		postfix:    postfix,
 		scaleDown:  imgScaleDown,
+		sizeX:      sizeX,
+		sizeY:      sizeY,
 		thumbnails: thumbnails,
 	}
 
