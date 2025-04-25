@@ -5,7 +5,6 @@ import (
 	"image"
 	"image/jpeg"
 	"image/png"
-	"log"
 	"os"
 	"path/filepath"
 
@@ -56,7 +55,7 @@ func (ps *Page) extract(pageNum int) error {
 	} else if ps.sizeX > 0 && ps.sizeY > 0 {
 		dstImg = imageutils.Resize(srcImg, ps.sizeX, ps.sizeY)
 	} else {
-		fmt.Println("Saving img without resizing")
+		// fmt.Println("Saving img without resizing")
 		dstImg = srcImg
 	}
 
@@ -88,7 +87,7 @@ func (ps *Page) extract(pageNum int) error {
 
 	f.Close()
 
-	log.Printf("Page %d extracted to %s", pageNum+1, imageFName)
+	// log.Printf("Page %d extracted to %s", pageNum+1, imageFName)
 
 	return nil
 }
