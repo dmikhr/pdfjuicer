@@ -8,14 +8,15 @@ import (
 	"runtime"
 	"sync"
 
-	"github.com/dmikhr/pdfjuicer/internal/input"
 	"github.com/gen2brain/go-fitz"
+	"github.com/schollz/progressbar/v3"
 	"github.com/spf13/pflag"
+
+	"github.com/dmikhr/pdfjuicer/internal/input"
 )
 
 const (
 	version               = "1.0.0"
-	workersNumber         = 4
 	imgScaleDownDefault   = 1.0
 	thumbScaleDownDefault = 10.0
 )
@@ -93,7 +94,7 @@ func main() {
 		log.Println("Number of workers must be at least 1")
 		return
 	} else {
-		log.Println("Number of workers is ", workersNum)
+		log.Println("Number of workers is", workersNum)
 	}
 
 	log.Println(fmt.Sprintf("Setting image format to %s, save folder: %s", imgType, saveDir))
@@ -185,16 +186,28 @@ func main() {
 	numJobs := len(pagesToExtract)
 	jobs := make(chan Job, numJobs)
 	jobErrors := make(chan JobErr, numJobs)
+	done := make(chan struct{}, numJobs)
+
+	bar := progressbar.Default(int64(numJobs))
 
 	for w := 1; w <= workersNum; w++ {
 		wg.Add(1)
-		go worker(w, jobs, jobErrors, &wg)
+		go worker(w, jobs, jobErrors, done, &wg)
 	}
 	for _, pageNum := range pagesToExtract {
 		jobs <- Job{page: page, pageNum: pageNum - 1}
 	}
 	close(jobs)
+
+	go func() {
+		for i := 0; i < numJobs; i++ {
+			<-done
+			bar.Add(1)
+		}
+	}()
+
 	wg.Wait()
+
 	close(jobErrors)
 
 	for jobErr := range jobErrors {
