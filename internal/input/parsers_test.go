@@ -115,6 +115,64 @@ var PageListTestCase = []validPageListTestCase{
 	},
 }
 
+var ImgSizeTestCase = []validParamTestCase{
+	{
+		comment:     "Size is valid",
+		inputValue:  "320x240",
+		expectError: nil,
+	},
+	{
+		comment:     "Wrong delimiter",
+		inputValue:  "320c240",
+		expectError: NoXErr,
+	},
+	{
+		comment:     "Size not int",
+		inputValue:  "320x240p",
+		expectError: SizeMustBeIntErr,
+	},
+	{
+		comment:     "Only text",
+		inputValue:  "qwerty",
+		expectError: NoXErr,
+	},
+	{
+		comment:     "Only digits",
+		inputValue:  "123",
+		expectError: NoXErr,
+	},
+	{
+		comment:     "Negative size Y",
+		inputValue:  "640x-480",
+		expectError: SizeMustBePositive,
+	},
+	{
+		comment:     "Negative size X",
+		inputValue:  "-640x480",
+		expectError: SizeMustBePositive,
+	},
+	{
+		comment:     "Negative size both",
+		inputValue:  "-640x-480",
+		expectError: SizeMustBePositive,
+	},
+	{
+		comment:     "Zero size X",
+		inputValue:  "0x480",
+		expectError: SizeMustBePositive,
+	},
+	{
+		comment:     "Zero size Y",
+		inputValue:  "640x0",
+		expectError: SizeMustBePositive,
+	},
+	{
+		comment:     "Zero size both",
+		inputValue:  "0x0",
+		expectError: SizeMustBePositive,
+	},
+}
+
 func TestPagesExtractor(t *testing.T) {
 	for _, tc := range PageListTestCase {
 		t.Run(tc.comment, func(t *testing.T) {
@@ -127,6 +185,17 @@ func TestPagesExtractor(t *testing.T) {
 				if !reflect.DeepEqual(got, tc.expectedVal) {
 					t.Errorf("%s test. want: %v, got: %v", tc.comment, tc.expectedVal, got)
 				}
+			}
+		})
+	}
+}
+
+func TestImgSizeExtractor(t *testing.T) {
+	for _, tc := range ImgSizeTestCase {
+		t.Run(tc.comment, func(t *testing.T) {
+			_, _, err := ImgSizeExtractor(tc.inputValue)
+			if !errors.Is(err, tc.expectError) {
+				t.Errorf("%s test. want: %v, got: %v", tc.comment, tc.expectError, err)
 			}
 		})
 	}

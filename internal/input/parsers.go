@@ -83,3 +83,25 @@ func expandRange(pageStart, pageEnd int, pagesNum *[]int) {
 func isOutOfRange(pageNum, pageCount int) bool {
 	return pageNum <= 0 || pageNum > pageCount
 }
+
+var (
+	NoXErr             = errors.New("no x in image size")
+	SizeMustBeIntErr   = errors.New("image size must be int")
+	SizeMustBePositive = errors.New("image size cannot be negative")
+)
+
+func ImgSizeExtractor(s string) (int, int, error) {
+	imgSize := strings.Split(s, "x")
+	if len(imgSize) != 2 {
+		return -1, -1, NoXErr
+	}
+	x, errX := strconv.Atoi(imgSize[0])
+	y, errY := strconv.Atoi(imgSize[1])
+	if errX != nil || errY != nil {
+		return -1, -1, SizeMustBeIntErr
+	}
+	if x <= 0 || y <= 0 {
+		return -1, -1, SizeMustBePositive
+	}
+	return x, y, nil
+}

@@ -2,7 +2,6 @@ package input
 
 import (
 	"errors"
-	"strconv"
 	"strings"
 )
 
@@ -19,29 +18,6 @@ func ImgFormatValidator(imgFormat string) error {
 		}
 	}
 	return UnsupportedImgFormatErr
-}
-
-var (
-	NoXErr             = errors.New("no x in image size")
-	SizeMustBeIntErr   = errors.New("image size must be int")
-	SizeMustBePositive = errors.New("image size cannot be negative")
-)
-
-// todo change to parser
-func ImgSizeValidator(s string) error {
-	imgSize := strings.Split(s, "x")
-	if len(imgSize) != 2 {
-		return NoXErr
-	}
-	x, errX := strconv.Atoi(imgSize[0])
-	y, errY := strconv.Atoi(imgSize[1])
-	if errX != nil || errY != nil {
-		return SizeMustBeIntErr
-	}
-	if x <= 0 || y <= 0 {
-		return SizeMustBePositive
-	}
-	return nil
 }
 
 var (
