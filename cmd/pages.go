@@ -22,12 +22,16 @@ type Page struct {
 	prefix     string
 	postfix    string
 	scaleDown  float64
+	sizeX      int
+	sizeY      int
 	thumbnails Thumbnail
 }
 
 type Thumbnail struct {
 	isActive  bool
 	scaleDown float64
+	sizeX     int
+	sizeY     int
 }
 
 func extractPage(p Page, pageNum int) error {
@@ -44,9 +48,11 @@ func extractPage(p Page, pageNum int) error {
 		return err
 	}
 
-	var dstImg *image.RGBA
-	if p.scaleDown != 1.0 {
+	var dstImg, thumbnail *image.RGBA
+	if p.scaleDown != imgScaleDownDefault {
 		dstImg = imageutils.ScaleResize(srcImg, p.scaleDown)
+	} else if p.sizeX > 0 && p.sizeY > 0 {
+		dstImg = imageutils.Resize(srcImg, p.sizeX, p.sizeY)
 	} else {
 		fmt.Println("Saving img without resizing")
 		dstImg = srcImg
@@ -64,7 +70,14 @@ func extractPage(p Page, pageNum int) error {
 			return err
 		}
 
-		thumbnail := imageutils.ScaleResize(srcImg, p.thumbnails.scaleDown)
+		if p.thumbnails.scaleDown != thumbScaleDownDefault {
+			thumbnail = imageutils.ScaleResize(srcImg, p.thumbnails.scaleDown)
+		} else if p.thumbnails.sizeX > 0 && p.thumbnails.sizeY > 0 {
+			thumbnail = imageutils.Resize(srcImg, p.sizeX, p.sizeY)
+		} else {
+			fmt.Println("Saving thumbnail without resizing")
+			thumbnail = srcImg
+		}
 		err = saveImg(f, p.imgType, thumbnail)
 		if err != nil {
 			return err
