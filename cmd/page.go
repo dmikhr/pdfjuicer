@@ -55,7 +55,6 @@ func (ps *Page) extract(pageNum int) error {
 	} else if ps.sizeX > 0 && ps.sizeY > 0 {
 		dstImg = imageutils.Resize(srcImg, ps.sizeX, ps.sizeY)
 	} else {
-		// fmt.Println("Saving img without resizing")
 		dstImg = srcImg
 	}
 
@@ -76,7 +75,6 @@ func (ps *Page) extract(pageNum int) error {
 		} else if ps.thumbnails.sizeX > 0 && ps.thumbnails.sizeY > 0 {
 			thumbnail = imageutils.Resize(srcImg, ps.sizeX, ps.sizeY)
 		} else {
-			fmt.Println("Saving thumbnail without resizing")
 			thumbnail = srcImg
 		}
 		err = saveImg(f, ps.imgType, thumbnail)
