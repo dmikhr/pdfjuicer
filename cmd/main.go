@@ -53,12 +53,10 @@ func main() {
 
 	workersNumDefault := runtime.NumCPU()
 
-	// ImgFormatValidator ImgSizeValidator
 	pflag.StringVarP(&cfg.sourcePath, "source", "s", "test.pdf",
 		"Specify path to source file (pdf/pptx)")
 	pflag.StringVarP(&cfg.saveDir, "output", "o", "", "Specify output folder path")
 
-	// FilenameValidator
 	pflag.StringVarP(&cfg.prefix, "prefix", "p", "page", "Prefix for a filename")
 	pflag.StringVarP(&cfg.postfix, "postfix", "x", "", "Postfix for a filename")
 
@@ -90,39 +88,42 @@ func main() {
 	pflag.Parse()
 
 	if cfg.image.imgSize != "" && cfg.image.imgScaleDown != imgScaleDownDefault {
-		fmt.Fprintf(os.Stderr, "Choose either scaling factor (--scale) or exact image size for resizing (--size)")
+		fmt.Fprintln(os.Stderr, "Choose either scaling factor (--scale) or exact image size for resizing (--size)")
 		anyErr = true
 	}
 	if err = input.ImgFormatValidator(cfg.image.imgType); err != nil {
-		fmt.Fprintf(os.Stderr, "Unsupported image type: %s", cfg.image.imgType)
+		fmt.Fprintf(os.Stderr, "Unsupported image type: %s\n", cfg.image.imgType)
 		anyErr = true
 	}
 	if cfg.thumb.thumbnailsSize != "" && cfg.thumb.thumbScaleDown != thumbScaleDownDefault {
-		fmt.Fprintf(os.Stderr, "Choose either scaling factor (--scale) or exact image size for resizing (--size)")
+		fmt.Fprintln(os.Stderr, "Choose either scaling factor (--scale) or exact image size for resizing (--size)")
 		anyErr = true
 	}
 
 	if cfg.prefix != "" {
 		if err = input.FilenameValidator(cfg.prefix); err != nil {
-			fmt.Fprintf(os.Stderr, "Invalid prefix: %s. Error: %s", cfg.prefix, err)
+			fmt.Fprintf(os.Stderr, "Invalid prefix: %s. Error: %s\n", cfg.prefix, err)
 			anyErr = true
 		}
 	}
 	if cfg.postfix != "" {
 		if err = input.FilenameValidator(cfg.postfix); err != nil {
-			fmt.Fprintf(os.Stderr, "Invalid postfix: %s. Error: %s", cfg.postfix, err)
+			fmt.Fprintf(os.Stderr, "Invalid postfix: %s. Error: %s\n", cfg.postfix, err)
 			anyErr = true
 		}
 	}
 
 	if cfg.workersNum <= 0 {
-		fmt.Fprintf(os.Stderr, "Number of workers must be at least 1")
+		fmt.Fprintln(os.Stderr, "Number of workers must be at least 1")
 		anyErr = true
 	}
 
-	fmt.Printf("\nSetting image format to %s, save folder: %s\n", cfg.image.imgType, cfg.saveDir)
+	fmt.Printf("\nSetting image format to %s, save folder: %s\n",
+		color(cfg.image.imgType, ColorGreen, true, cfg.quiet),
+		color(cfg.saveDir, ColorGreen, true, cfg.quiet))
 	if cfg.pages != "" {
-		fmt.Printf("Selected pages will be extracted: %s\n", cfg.pages)
+		fmt.Printf("Selected pages will be extracted: %s\n",
+			color(cfg.pages, ColorGreen, true, cfg.quiet))
 	}
 	if cfg.image.imgSize != "" {
 		sizeX, sizeY, err = input.ImgSizeExtractor(cfg.image.imgSize)
@@ -132,18 +133,18 @@ func main() {
 		}
 		fmt.Printf("Extracted images size will be set to: %dx%d\n", sizeX, sizeY)
 	} else if cfg.image.imgScaleDown != imgScaleDownDefault {
-		fmt.Printf("Extracted images size will be scaled down with factor %.2f ", cfg.image.imgScaleDown)
+		fmt.Printf("Extracted images size will be scaled down with factor %.2f\n", cfg.image.imgScaleDown)
 	}
 
 	if cfg.thumb.thumbnailsSize != "" {
 		thumbSizeX, thumbSizeY, err = input.ImgSizeExtractor(cfg.thumb.thumbnailsSize)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Invalid thumbnail size (example: 120x256): %s", err)
+			fmt.Fprintf(os.Stderr, "Invalid thumbnail size (example: 120x256): %s\n", err)
 			anyErr = true
 		}
-		log.Printf("Thumbnails size will be set to: %dx%d", thumbSizeX, thumbSizeY)
+		fmt.Printf("Thumbnails size will be set to: %dx%d\n", thumbSizeX, thumbSizeY)
 	} else if cfg.thumb.thumbScaleDown != thumbScaleDownDefault {
-		log.Printf("Thumbnails will be resized with scaling down factor %.2f ", cfg.image.imgScaleDown)
+		fmt.Printf("Thumbnails will be resized with scaling down factor %.2f\n", cfg.image.imgScaleDown)
 	}
 
 	if anyErr {
@@ -151,7 +152,7 @@ func main() {
 	}
 
 	if cfg.versionFlag {
-		fmt.Printf("pdfjuicer version %s", version)
+		fmt.Printf("pdfjuicer version %s\n", version)
 		return
 	}
 
@@ -174,8 +175,7 @@ func main() {
 	if cfg.pages != "" {
 		pagesToExtract, err = input.PagesExtractor(cfg.pages, pageCount)
 		if err != nil {
-			log.Println(err)
-			return
+			log.Fatal(err)
 		}
 	} else {
 		for i := 1; i <= pageCount; i++ {
