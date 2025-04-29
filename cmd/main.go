@@ -258,6 +258,6 @@ func main() {
 	}
 
 	if len(jobErrors) == 0 {
-		fmt.Println("Finished extraction") // here issue happens progressbar printed second time
+		fmt.Println("Finished extraction")
 	}
 }
