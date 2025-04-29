@@ -35,13 +35,11 @@ type Thumbnail struct {
 }
 
 func (ps *Page) extract(pageNum int) error {
-	// extracting source image
 	srcImg, err := ps.doc.Image(pageNum)
 	if err != nil {
 		return err
 	}
 
-	// creating file for dst image
 	imageFName := fmt.Sprintf("%s%03d%s.%s", ps.prefix, pageNum+1, ps.postfix, ps.imgType)
 	imagePath := filepath.Join(ps.savePath, imageFName)
 	f, err := os.Create(imagePath)
@@ -84,8 +82,6 @@ func (ps *Page) extract(pageNum int) error {
 	}
 
 	f.Close()
-
-	// log.Printf("Page %d extracted to %s", pageNum+1, imageFName)
 
 	return nil
 }
