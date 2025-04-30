@@ -10,6 +10,7 @@ var allowedImgFormats = []string{"png", "jpg", "jpeg"}
 // UnsupportedImgFormatErr validates image format
 var UnsupportedImgFormatErr = errors.New("unsupported image format")
 
+// ImgFormatValidator validates if submitted image format (e.g. png, jpg) is supported
 func ImgFormatValidator(imgFormat string) error {
 	imgFormatLow := strings.ToLower(imgFormat)
 	for _, allowedFormat := range allowedImgFormats {

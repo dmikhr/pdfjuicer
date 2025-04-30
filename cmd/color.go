@@ -12,7 +12,7 @@ const (
 	ColorBlue  Color = "\033[34m"
 )
 
-// color - apply color and optional bold formatting to text
+// color apply color and optional bold formatting to text
 func color(text string, color Color, bold, noFormat bool) string {
 	if noFormat {
 		return text
@@ -28,7 +28,7 @@ type formattedLabel interface {
 	~string | ~float64
 }
 
-// fbg - formatting text in bold and color green
+// fbg formatting text in bold and color green
 func fbg[T formattedLabel](label T, noFormat bool) string {
 	if s, ok := any(label).(string); ok {
 		return color(s, ColorGreen, true, noFormat)

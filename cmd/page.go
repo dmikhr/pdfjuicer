@@ -15,6 +15,7 @@ import (
 
 const thumbnailsDir = "thumbnails"
 
+// Page contains settings for page extraction as image and pointer to source doc
 type Page struct {
 	doc        *fitz.Document
 	imgType    string
@@ -27,6 +28,7 @@ type Page struct {
 	thumbnails Thumbnail
 }
 
+// Thumbnail contains settings for thimbnails
 type Thumbnail struct {
 	isActive  bool
 	scaleDown float64
@@ -34,6 +36,7 @@ type Thumbnail struct {
 	sizeY     int
 }
 
+// extract page from pdf document as image
 func (ps *Page) extract(pageNum int) error {
 	srcImg, err := ps.doc.Image(pageNum)
 	if err != nil {
@@ -86,6 +89,7 @@ func (ps *Page) extract(pageNum int) error {
 	return nil
 }
 
+// saveImg saves image in a given image format
 func saveImg(f *os.File, imgType string, dstImg *image.RGBA) error {
 	var err error
 

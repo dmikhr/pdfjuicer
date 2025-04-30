@@ -15,6 +15,8 @@ var (
 	PageOutofRangeErr   = errors.New("page out of range")
 )
 
+// PagesExtractor parses user input of custom pages to extract
+// example: 1,4,5-8,10
 func PagesExtractor(s string, pageCount int) ([]int, error) {
 	sNoSpaces := strings.ReplaceAll(s, " ", "")
 	pagesChunks := strings.Split(sNoSpaces, ",")
@@ -61,6 +63,7 @@ func PagesExtractor(s string, pageCount int) ([]int, error) {
 	return uniqueFromSortedAsc(pagesList), nil
 }
 
+// uniqueFromSortedAsc leaves only unique pages in case if user submitted duplicate pages
 func uniqueFromSortedAsc(s []int) []int {
 	var uniqueItems []int
 	uniqueItems = append(uniqueItems, s[0])
@@ -74,12 +77,15 @@ func uniqueFromSortedAsc(s []int) []int {
 	return uniqueItems
 }
 
+// expandRange transforms ranges into consecutive page numbers
+// example: 2-5 -> 2,3,4,5
 func expandRange(pageStart, pageEnd int, pagesNum *[]int) {
 	for i := pageStart; i <= pageEnd; i++ {
 		*pagesNum = append(*pagesNum, i)
 	}
 }
 
+// isOutOfRange checks if submitted page is out of range
 func isOutOfRange(pageNum, pageCount int) bool {
 	return pageNum <= 0 || pageNum > pageCount
 }
@@ -90,6 +96,7 @@ var (
 	SizeMustBePositive = errors.New("image size cannot be negative")
 )
 
+// ImgSizeExtractor parses submitted image size like 256x480 into x,y integers
 func ImgSizeExtractor(s string) (int, int, error) {
 	imgSize := strings.Split(s, "x")
 	if len(imgSize) != 2 {
