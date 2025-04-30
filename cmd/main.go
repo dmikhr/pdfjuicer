@@ -119,11 +119,11 @@ func main() {
 	}
 
 	fmt.Printf("\nSetting image format to %s, save folder: %s\n",
-		color(cfg.image.imgType, ColorGreen, true, cfg.quiet),
-		color(cfg.saveDir, ColorGreen, true, cfg.quiet))
+		fbg(cfg.image.imgType, cfg.quiet),
+		fbg(cfg.saveDir, cfg.quiet))
 	if cfg.pages != "" {
 		fmt.Printf("Selected pages will be extracted: %s\n",
-			color(cfg.pages, ColorGreen, true, cfg.quiet))
+			fbg(cfg.pages, cfg.quiet))
 	}
 	if cfg.image.imgSize != "" {
 		sizeX, sizeY, err = input.ImgSizeExtractor(cfg.image.imgSize)
@@ -131,9 +131,9 @@ func main() {
 			fmt.Fprintf(os.Stderr, "Invalid image size (example: 120x256): %s\n", err)
 			anyErr = true
 		}
-		fmt.Printf("Extracted images size will be set to: %dx%d\n", sizeX, sizeY)
+		fmt.Printf("Extracted images size will be set to: %s\n", fbg(cfg.image.imgSize, cfg.quiet))
 	} else if cfg.image.imgScaleDown != imgScaleDownDefault {
-		fmt.Printf("Extracted images size will be scaled down with factor %.2f\n", cfg.image.imgScaleDown)
+		fmt.Printf("Extracted images size will be scaled down with factor %s\n", fbg(cfg.image.imgScaleDown, cfg.quiet))
 	}
 
 	if cfg.thumb.thumbnailsSize != "" {
@@ -142,9 +142,9 @@ func main() {
 			fmt.Fprintf(os.Stderr, "Invalid thumbnail size (example: 120x256): %s\n", err)
 			anyErr = true
 		}
-		fmt.Printf("Thumbnails size will be set to: %dx%d\n", thumbSizeX, thumbSizeY)
+		fmt.Printf("Thumbnails size will be set to: %s\n", fbg(cfg.thumb.thumbnailsSize, cfg.quiet))
 	} else if cfg.thumb.thumbScaleDown != thumbScaleDownDefault {
-		fmt.Printf("Thumbnails will be resized with scaling down factor %.2f\n", cfg.image.imgScaleDown)
+		fmt.Printf("Thumbnails will be resized with scaling down factor %s\n", fbg(cfg.image.imgScaleDown, cfg.quiet))
 	}
 
 	if anyErr {
