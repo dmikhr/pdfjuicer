@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 type Color string
 
 const (
@@ -10,6 +12,7 @@ const (
 	ColorBlue  Color = "\033[34m"
 )
 
+// color - apply color and optional bold formatting to text
 func color(text string, color Color, bold, noFormat bool) string {
 	if noFormat {
 		return text
@@ -19,4 +22,16 @@ func color(text string, color Color, bold, noFormat bool) string {
 		mode += Bold
 	}
 	return mode + text + string(Reset)
+}
+
+type formattedLabel interface {
+	~string | ~float64
+}
+
+// fbg - formatting text in bold and color green
+func fbg[T formattedLabel](label T, noFormat bool) string {
+	if s, ok := any(label).(string); ok {
+		return color(s, ColorGreen, true, noFormat)
+	}
+	return color(fmt.Sprintf("%.2f", any(label).(float64)), ColorGreen, true, noFormat)
 }
