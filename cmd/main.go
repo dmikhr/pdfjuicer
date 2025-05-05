@@ -77,8 +77,6 @@ func main() {
 	pflag.StringVarP(&cfg.thumb.thumbnailsSize, "tsize", "z", "",
 		"Specify thumbnails size e.g. 64x64")
 
-	pflag.BoolVarP(&cfg.force, "force", "f", false,
-		"Don't ask for rewriting is directory contains files")
 	pflag.BoolVarP(&cfg.versionFlag, "version", "v", false, "Show version")
 
 	pflag.IntVarP(&cfg.workersNum, "workers", "w", workersNumDefault,
@@ -87,6 +85,11 @@ func main() {
 	pflag.BoolVarP(&cfg.quiet, "quiet", "q", false, "Quiet mode (no progress bar, no colored output)")
 
 	pflag.Parse()
+
+	if cfg.versionFlag {
+		fmt.Printf("pdfjuicer version %s\n", version)
+		return
+	}
 
 	if cfg.image.imgSize != "" && cfg.image.imgScaleDown != imgScaleDownDefault {
 		fmt.Fprintln(os.Stderr, "Choose either scaling factor (--scale) or exact image size for resizing (--size)")
@@ -99,28 +102,6 @@ func main() {
 	if cfg.thumb.thumbnailsSize != "" && cfg.thumb.thumbScaleDown != thumbScaleDownDefault {
 		fmt.Fprintln(os.Stderr, "Choose either scaling factor (--scale) or exact image size for resizing (--size)")
 		anyErr = true
-	}
-
-	if cfg.image.imgSize != "" {
-		sizeX, sizeY, err = input.ImgSizeExtractor(cfg.image.imgSize)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Invalid image size (example: 120x256): %s\n", err)
-			anyErr = true
-		}
-		fmt.Printf("Extracted images size will be set to: %s\n", fbg(cfg.image.imgSize, cfg.quiet))
-	} else if cfg.image.imgScaleDown != imgScaleDownDefault {
-		fmt.Printf("Extracted images size will be scaled down with factor %s\n", fbg(cfg.image.imgScaleDown, cfg.quiet))
-	}
-
-	if cfg.thumb.thumbnailsSize != "" {
-		thumbSizeX, thumbSizeY, err = input.ImgSizeExtractor(cfg.thumb.thumbnailsSize)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Invalid thumbnail size (example: 120x256): %s\n", err)
-			anyErr = true
-		}
-		fmt.Printf("Thumbnails size will be set to: %s\n", fbg(cfg.thumb.thumbnailsSize, cfg.quiet))
-	} else if cfg.thumb.thumbScaleDown != thumbScaleDownDefault {
-		fmt.Printf("Thumbnails will be resized with scaling down factor %s\n", fbg(cfg.image.imgScaleDown, cfg.quiet))
 	}
 
 	if cfg.sourcePath == "" {
@@ -154,9 +135,26 @@ func main() {
 		os.Exit(1)
 	}
 
-	if cfg.versionFlag {
-		fmt.Printf("pdfjuicer version %s\n", version)
-		return
+	if cfg.image.imgSize != "" {
+		sizeX, sizeY, err = input.ImgSizeExtractor(cfg.image.imgSize)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Invalid image size (example: 120x256): %s\n", err)
+			return
+		}
+		fmt.Printf("Extracted images size will be set to: %s\n", fbg(cfg.image.imgSize, cfg.quiet))
+	} else if cfg.image.imgScaleDown != imgScaleDownDefault {
+		fmt.Printf("Extracted images size will be scaled down with factor %s\n", fbg(cfg.image.imgScaleDown, cfg.quiet))
+	}
+
+	if cfg.thumb.thumbnailsSize != "" {
+		thumbSizeX, thumbSizeY, err = input.ImgSizeExtractor(cfg.thumb.thumbnailsSize)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Invalid thumbnail size (example: 120x256): %s\n", err)
+			return
+		}
+		fmt.Printf("Thumbnails size will be set to: %s\n", fbg(cfg.thumb.thumbnailsSize, cfg.quiet))
+	} else if cfg.thumb.thumbScaleDown != thumbScaleDownDefault {
+		fmt.Printf("Thumbnails will be resized with scaling down factor %s\n", fbg(cfg.image.imgScaleDown, cfg.quiet))
 	}
 
 	fmt.Printf("Setting image format to %s, save folder: %s\n",
@@ -199,13 +197,13 @@ func main() {
 		}
 	}
 
-	var savePath string
+	savePath := filepath.Join(workDir, cfg.saveDir)
+	createPath := savePath
 	if cfg.thumb.createThumbnails {
-		savePath = filepath.Join(workDir, thumbnailsDir, cfg.saveDir)
-	} else {
-		savePath = filepath.Join(workDir, cfg.saveDir)
+		createPath = filepath.Join(createPath, thumbnailsDir)
 	}
-	err = os.MkdirAll(savePath, 0755)
+
+	err = os.MkdirAll(createPath, 0755)
 	if err != nil {
 		log.Fatal(err)
 	}
