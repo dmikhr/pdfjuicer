@@ -71,12 +71,10 @@ func (ps *Page) extract(pageNum int) error {
 			return err
 		}
 
-		if ps.thumbnails.scaleDown != thumbScaleDownDefault {
-			thumbnail = imageutils.ScaleResize(srcImg, ps.thumbnails.scaleDown)
-		} else if ps.thumbnails.sizeX > 0 && ps.thumbnails.sizeY > 0 {
-			thumbnail = imageutils.Resize(srcImg, ps.sizeX, ps.sizeY)
+		if ps.thumbnails.sizeX > 0 && ps.thumbnails.sizeY > 0 {
+			thumbnail = imageutils.Resize(srcImg, ps.thumbnails.sizeX, ps.thumbnails.sizeY)
 		} else {
-			thumbnail = srcImg
+			thumbnail = imageutils.ScaleResize(srcImg, ps.thumbnails.scaleDown)
 		}
 		err = saveImg(f, ps.imgType, thumbnail)
 		if err != nil {
