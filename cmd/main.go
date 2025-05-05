@@ -19,6 +19,8 @@ const (
 	version               = "1.0.0"
 	imgScaleDownDefault   = 1.0
 	thumbScaleDownDefault = 10.0
+	defaultFilenamePrefix = "page"
+	defaultImgFormat      = "png"
 )
 
 type config struct {
@@ -41,30 +43,29 @@ type config struct {
 	force       bool
 	versionFlag bool
 	quiet       bool
-	debug       bool
 }
 
 func main() {
 	var sizeX, sizeY, thumbSizeX, thumbSizeY int
 	var err error
-	var quiet, anyErr bool
+	var anyErr bool
 
 	var cfg config
 
 	workersNumDefault := runtime.NumCPU()
 
-	pflag.StringVarP(&cfg.sourcePath, "source", "s", "test.pdf",
-		"Specify path to source file (pdf/pptx)")
+	pflag.StringVarP(&cfg.sourcePath, "source", "s", "",
+		"Specify path to source file (pdf)")
 	pflag.StringVarP(&cfg.saveDir, "output", "o", "", "Specify output folder path")
 
-	pflag.StringVarP(&cfg.prefix, "prefix", "p", "page", "Prefix for a filename")
+	pflag.StringVarP(&cfg.prefix, "prefix", "p", defaultFilenamePrefix, "Prefix for a filename")
 	pflag.StringVarP(&cfg.postfix, "postfix", "x", "", "Postfix for a filename")
 
 	pflag.StringVarP(&cfg.image.imgSize, "size", "S", "",
 		"Specify image size, example 640x480, if not specified will output default size from document")
 	pflag.Float64VarP(&cfg.image.imgScaleDown, "scale", "C", imgScaleDownDefault,
 		"Specify image scaling down factor, example 5, for example 5 means output image will be 5 times smaller than original image")
-	pflag.StringVarP(&cfg.image.imgType, "format", "F", "png",
+	pflag.StringVarP(&cfg.image.imgType, "format", "F", defaultImgFormat,
 		"Specify output image format (png/jpg)")
 
 	pflag.StringVarP(&cfg.pages, "pages", "P", "",
@@ -83,7 +84,7 @@ func main() {
 	pflag.IntVarP(&cfg.workersNum, "workers", "w", workersNumDefault,
 		"Set number of anynchronous workers")
 
-	pflag.BoolVarP(&cfg.quiet, "quiet", "q", false, "Quiet mode")
+	pflag.BoolVarP(&cfg.quiet, "quiet", "q", false, "Quiet mode (no progress bar, no colored output)")
 
 	pflag.Parse()
 
@@ -100,31 +101,6 @@ func main() {
 		anyErr = true
 	}
 
-	if cfg.prefix != "" {
-		if err = input.FilenameValidator(cfg.prefix); err != nil {
-			fmt.Fprintf(os.Stderr, "Invalid prefix: %s. Error: %s\n", cfg.prefix, err)
-			anyErr = true
-		}
-	}
-	if cfg.postfix != "" {
-		if err = input.FilenameValidator(cfg.postfix); err != nil {
-			fmt.Fprintf(os.Stderr, "Invalid postfix: %s. Error: %s\n", cfg.postfix, err)
-			anyErr = true
-		}
-	}
-
-	if cfg.workersNum <= 0 {
-		fmt.Fprintln(os.Stderr, "Number of workers must be at least 1")
-		anyErr = true
-	}
-
-	fmt.Printf("\nSetting image format to %s, save folder: %s\n",
-		fbg(cfg.image.imgType, cfg.quiet),
-		fbg(cfg.saveDir, cfg.quiet))
-	if cfg.pages != "" {
-		fmt.Printf("Selected pages will be extracted: %s\n",
-			fbg(cfg.pages, cfg.quiet))
-	}
 	if cfg.image.imgSize != "" {
 		sizeX, sizeY, err = input.ImgSizeExtractor(cfg.image.imgSize)
 		if err != nil {
@@ -147,6 +123,33 @@ func main() {
 		fmt.Printf("Thumbnails will be resized with scaling down factor %s\n", fbg(cfg.image.imgScaleDown, cfg.quiet))
 	}
 
+	if cfg.sourcePath == "" {
+		fmt.Fprintln(os.Stderr, "No source pdf file was specified")
+		anyErr = true
+	}
+	if cfg.saveDir == "" {
+		fmt.Fprintln(os.Stderr, "No target directory for image extraction was specified")
+		anyErr = true
+	}
+
+	if cfg.prefix != "" {
+		if err = input.FilenameValidator(cfg.prefix); err != nil {
+			fmt.Fprintf(os.Stderr, "Invalid prefix: %s. Error: %s\n", cfg.prefix, err)
+			anyErr = true
+		}
+	}
+	if cfg.postfix != "" {
+		if err = input.FilenameValidator(cfg.postfix); err != nil {
+			fmt.Fprintf(os.Stderr, "Invalid postfix: %s. Error: %s\n", cfg.postfix, err)
+			anyErr = true
+		}
+	}
+
+	if cfg.workersNum <= 0 {
+		fmt.Fprintln(os.Stderr, "Number of workers must be at least 1")
+		anyErr = true
+	}
+
 	if anyErr {
 		os.Exit(1)
 	}
@@ -154,6 +157,14 @@ func main() {
 	if cfg.versionFlag {
 		fmt.Printf("pdfjuicer version %s\n", version)
 		return
+	}
+
+	fmt.Printf("Setting image format to %s, save folder: %s\n",
+		fbg(cfg.image.imgType, cfg.quiet),
+		fbg(cfg.saveDir, cfg.quiet))
+	if cfg.pages != "" {
+		fmt.Printf("Selected pages will be extracted: %s\n",
+			fbg(cfg.pages, cfg.quiet))
 	}
 
 	workDir, err := os.Getwd()
@@ -168,7 +179,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	defer doc.Close()
+	defer func() {
+		err = doc.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
 
 	pageCount := doc.NumPage()
 	var pagesToExtract []int
@@ -220,7 +236,7 @@ func main() {
 	done := make(chan struct{}, numJobs)
 
 	var bar *progressbar.ProgressBar
-	if !quiet {
+	if !cfg.quiet {
 		bar = progressbar.Default(int64(numJobs))
 	}
 
@@ -237,16 +253,22 @@ func main() {
 	go func() {
 		for i := 0; i < numJobs; i++ {
 			<-done
-			if !quiet {
-				bar.Add(1)
+			if !cfg.quiet {
+				err = bar.Add(1)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "Progress bar encountered problem: %s\n", err)
+				}
 			}
 		}
 	}()
 
 	wg.Wait()
 
-	if !quiet {
-		bar.Finish()
+	if !cfg.quiet {
+		err = bar.Finish()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Progress bar encountered problem: %s\n", err)
+		}
 	}
 
 	close(jobErrors)

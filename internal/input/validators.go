@@ -7,8 +7,8 @@ import (
 
 var allowedImgFormats = []string{"png", "jpg", "jpeg"}
 
-// UnsupportedImgFormatErr validates image format
-var UnsupportedImgFormatErr = errors.New("unsupported image format")
+// ErrUnsupportedImgFormat validates image format
+var ErrUnsupportedImgFormat = errors.New("unsupported image format")
 
 // ImgFormatValidator validates if submitted image format (e.g. png, jpg) is supported
 func ImgFormatValidator(imgFormat string) error {
@@ -18,12 +18,14 @@ func ImgFormatValidator(imgFormat string) error {
 			return nil
 		}
 	}
-	return UnsupportedImgFormatErr
+	return ErrUnsupportedImgFormat
 }
 
 var (
-	InputLongErr   = errors.New("input too long")
-	InvalidCharErr = errors.New("invalid character")
+	// ErrInputLong is returned when the provided input exceeds the allowed maximum length
+	ErrInputLong = errors.New("input too long")
+	// ErrInvalidChar is returned when the input contains invalid characters
+	ErrInvalidChar = errors.New("invalid character")
 )
 
 // prefix and postfix sizes limited to:
@@ -32,12 +34,12 @@ const inputLimit = 100
 // FilenameValidator validate postfix, prefix of a file
 func FilenameValidator(s string) error {
 	if len(s) > inputLimit {
-		return InputLongErr
+		return ErrInputLong
 	}
 	allowedChars := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_."
 	for _, ch := range s {
 		if !strings.Contains(allowedChars, string(ch)) {
-			return InvalidCharErr
+			return ErrInvalidChar
 		}
 	}
 	return nil

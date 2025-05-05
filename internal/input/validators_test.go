@@ -25,17 +25,17 @@ var FileSubstringTestCase = []validParamTestCase{
 	{
 		comment:     "ivalid input 2",
 		inputValue:  "1 some part",
-		expectError: InvalidCharErr,
+		expectError: ErrInvalidChar,
 	},
 	{
 		comment:     "ivalid input 2",
 		inputValue:  "some/part",
-		expectError: InvalidCharErr,
+		expectError: ErrInvalidChar,
 	},
 	{
 		comment:     "ivalid input 3",
 		inputValue:  "some?part",
-		expectError: InvalidCharErr,
+		expectError: ErrInvalidChar,
 	},
 }
 
@@ -63,12 +63,12 @@ var ImgFormatTestCase = []validParamTestCase{
 	{
 		comment:     "Unsupported tiff",
 		inputValue:  "tiff",
-		expectError: UnsupportedImgFormatErr,
+		expectError: ErrUnsupportedImgFormat,
 	},
 	{
 		comment:     "Unsupported 0011",
 		inputValue:  "0011",
-		expectError: UnsupportedImgFormatErr,
+		expectError: ErrUnsupportedImgFormat,
 	},
 }
 

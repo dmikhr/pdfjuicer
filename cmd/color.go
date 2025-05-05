@@ -2,14 +2,16 @@ package main
 
 import "fmt"
 
+// Color represents an ANSI escape code string used for terminal text formatting and coloring
 type Color string
 
 const (
-	Reset      Color = "\033[0m"
-	Bold             = "\033[1m"
-	ColorRed   Color = "\033[31m"
+	// Reset resets all terminal formatting to default
+	Reset Color = "\033[0m"
+	// Bold applies bold formatting to terminal text
+	Bold = "\033[1m"
+	// ColorGreen sets the terminal text color to green
 	ColorGreen Color = "\033[32m"
-	ColorBlue  Color = "\033[34m"
 )
 
 // color apply color and optional bold formatting to text

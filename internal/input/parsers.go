@@ -8,11 +8,17 @@ import (
 )
 
 var (
-	DoubleDashErr       = errors.New("only one dash allowed in the range")
-	DashOnBoundariesErr = errors.New("range can't begin or end with a dash")
-	PageNotIntErr       = errors.New("page number must be integer")
-	PageStartGreaterErr = errors.New("start page can't be greater than the final")
-	PageOutofRangeErr   = errors.New("page out of range")
+	// ErrDoubleDash is returned when more than one dash is found in the page range specification.
+	// example: incorrect 5--10, correct: 5-10
+	ErrDoubleDash = errors.New("only one dash allowed in the range")
+	// ErrDashOnBoundaries is returned when the page range begins or ends with a dash
+	ErrDashOnBoundaries = errors.New("range can't begin or end with a dash")
+	// ErrPageNotInt is returned when the page number provided cannot be parsed as an integer
+	ErrPageNotInt = errors.New("page number must be integer")
+	// ErrPageStartGreater is returned when the start page number is greater than the end page number in a document
+	ErrPageStartGreater = errors.New("start page can't be greater than the final")
+	// ErrPageOutofRange is returned when the specified page number falls outside the page range of a document
+	ErrPageOutofRange = errors.New("page out of range")
 )
 
 // PagesExtractor parses user input of custom pages to extract
@@ -32,30 +38,28 @@ func PagesExtractor(s string, pageCount int) ([]int, error) {
 		if dashPos == -1 {
 			pageNum, err = strconv.Atoi(pageData)
 			if err != nil {
-				return []int{}, PageNotIntErr
+				return []int{}, ErrPageNotInt
 			} else if isOutOfRange(pageNum, pageCount) {
-				return []int{}, PageOutofRangeErr
-			} else {
-				pagesList = append(pagesList, pageNum)
+				return []int{}, ErrPageOutofRange
 			}
+			pagesList = append(pagesList, pageNum)
 		} else if strings.Count(pageData, "-") > 1 {
-			return []int{}, DoubleDashErr
+			return []int{}, ErrDoubleDash
 		} else if dashPos == 0 || dashPos == len(pageData)-1 {
-			return []int{}, DashOnBoundariesErr
+			return []int{}, ErrDashOnBoundaries
 		} else if strings.Count(pageData, "-") == 1 {
 			pages = strings.Split(pageData, "-")
 			pageStart, err1 := strconv.Atoi(pages[0])
 			pageEnd, err2 := strconv.Atoi(pages[1])
 
 			if err1 != nil || err2 != nil {
-				return []int{}, PageNotIntErr
+				return []int{}, ErrPageNotInt
 			} else if pageStart > pageEnd {
-				return []int{}, PageStartGreaterErr
+				return []int{}, ErrPageStartGreater
 			} else if isOutOfRange(pageStart, pageCount) || isOutOfRange(pageEnd, pageCount) {
-				return []int{}, PageOutofRangeErr
-			} else {
-				expandRange(pageStart, pageEnd, &pagesList)
+				return []int{}, ErrPageOutofRange
 			}
+			expandRange(pageStart, pageEnd, &pagesList)
 		}
 	}
 	sort.Ints(pagesList)
@@ -91,24 +95,29 @@ func isOutOfRange(pageNum, pageCount int) bool {
 }
 
 var (
-	NoXErr             = errors.New("no x in image size")
-	SizeMustBeIntErr   = errors.New("image size must be int")
-	SizeMustBePositive = errors.New("image size cannot be negative")
+	// ErrNoX is returned when the image size is expected to have an 'x' (e.g., "800x600"),
+	// but it is missing from the provided string.
+	ErrNoX = errors.New("no x in image size")
+	// ErrSizeMustBeInt is returned when the image size value cannot be parsed as an integer
+	ErrSizeMustBeInt = errors.New("image size must be int")
+	// ErrSizeMustBePositive is returned when the image size is zero or a negative number,
+	// but a positive value is required.
+	ErrSizeMustBePositive = errors.New("image size cannot be negative")
 )
 
 // ImgSizeExtractor parses submitted image size like 256x480 into x,y integers
 func ImgSizeExtractor(s string) (int, int, error) {
 	imgSize := strings.Split(s, "x")
 	if len(imgSize) != 2 {
-		return -1, -1, NoXErr
+		return -1, -1, ErrNoX
 	}
 	x, errX := strconv.Atoi(imgSize[0])
 	y, errY := strconv.Atoi(imgSize[1])
 	if errX != nil || errY != nil {
-		return -1, -1, SizeMustBeIntErr
+		return -1, -1, ErrSizeMustBeInt
 	}
 	if x <= 0 || y <= 0 {
-		return -1, -1, SizeMustBePositive
+		return -1, -1, ErrSizeMustBePositive
 	}
 	return x, y, nil
 }
