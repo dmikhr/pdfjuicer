@@ -1,6 +1,6 @@
 # pdfjuicer
 
-![logo](assets/pdfjuicer_logo.png)
+![demo](assets/pdfjuicer_action.png)
 
 A fast and flexible command-line tool for extracting pages from PDF documents as high-quality images. This utility allows you to quickly convert PDF content into various image formats with extensive customization options.
 
@@ -16,7 +16,6 @@ A fast and flexible command-line tool for extracting pages from PDF documents as
 
 Built with Go, app leverages the speed of a compiled language and concurrent processing via goroutines.
 
-![demo](assets/pdfjuicer_action.png)
 
 ## About
 Pdfjuicer was designed with content creators and educators in mind, providing easy ways to extract visual content from PDF documents for presentations, course materials, and digital content creation.
