@@ -1,6 +1,6 @@
 LOCAL_BIN:=$(CURDIR)/bin
 
-.PHONY: lint install-golangci-lint test build build-run run
+.PHONY: third_party_licenses go-lic lint install-golangci-lint test build build-run run
 
 run:
 	go run ./bin/pdfjuicer
@@ -18,4 +18,10 @@ install-golangci-lint:
 	GOBIN=$(LOCAL_BIN) go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.64.8
 
 lint:
-	@$(LOCAL_BIN)/golangci-lint run ./... --config .golangci.yaml
+	$(LOCAL_BIN)/golangci-lint run ./... --config .golangci.yaml
+
+go-lic-install:
+	GOBIN=$(LOCAL_BIN) go install github.com/google/go-licenses@v1.6.0
+
+third_party_licenses:
+	$(LOCAL_BIN)/go-licenses save ./... --save_path=./THIRD_PARTY_LICENSES
