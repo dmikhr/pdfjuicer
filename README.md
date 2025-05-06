@@ -90,7 +90,7 @@ Miscellaneous
   -w, --workers int      Set number of anynchronous workers (default N*)
   ```
 
-*Default number of asynchronous workers is set to number (N) of logical CPU cores in your computer.
+*Default number of asynchronous workers is set by default to number (N) of logical CPU cores in your computer.
 
 ## Usage examples
 
