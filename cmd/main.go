@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Dmitrii Khramtsov
+// License: AGPL-3.0
+
 package main
 
 import (
@@ -16,7 +19,6 @@ import (
 )
 
 const (
-	version               = "1.0.0"
 	imgScaleDownDefault   = 1.0
 	thumbScaleDownDefault = 10.0
 	defaultFilenamePrefix = "page"
@@ -40,7 +42,6 @@ type config struct {
 		thumbnailsSize   string
 	}
 	workersNum  int
-	force       bool
 	versionFlag bool
 	quiet       bool
 }
@@ -85,6 +86,13 @@ func main() {
 	pflag.BoolVarP(&cfg.quiet, "quiet", "q", false, "Quiet mode (no progress bar, no colored output)")
 
 	pflag.Parse()
+
+	// show help if called with no params
+	if pflag.NFlag() == 0 {
+		fmt.Println(about())
+		pflag.Usage()
+		os.Exit(0)
+	}
 
 	if cfg.versionFlag {
 		fmt.Printf("pdfjuicer version %s\n", version)
