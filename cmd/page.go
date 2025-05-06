@@ -92,7 +92,7 @@ func saveImg(f *os.File, imgType string, dstImg *image.RGBA) error {
 	var err error
 
 	switch imgType {
-	case "jpg":
+	case "jpg", "jpeg":
 		err = jpeg.Encode(f, dstImg, &jpeg.Options{Quality: jpeg.DefaultQuality})
 	case "png":
 		err = png.Encode(f, dstImg)
