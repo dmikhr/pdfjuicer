@@ -1,0 +1,8 @@
+github.com/gen2brain/go-fitz,https://github.com/gen2brain/go-fitz/blob/v1.24.14/COPYING,AGPL-3.0
+github.com/mitchellh/colorstring,https://github.com/mitchellh/colorstring/blob/d06e56a500db/LICENSE,MIT
+github.com/rivo/uniseg,https://github.com/rivo/uniseg/blob/v0.4.7/LICENSE.txt,MIT
+github.com/schollz/progressbar/v3,https://github.com/schollz/progressbar/blob/v3.18.0/LICENSE,MIT
+github.com/spf13/pflag,https://github.com/spf13/pflag/blob/v1.0.6/LICENSE,BSD-3-Clause
+golang.org/x/image,https://cs.opensource.google/go/x/image/+/v0.26.0:LICENSE,BSD-3-Clause
+golang.org/x/sys/unix,https://cs.opensource.google/go/x/sys/+/v0.32.0:LICENSE,BSD-3-Clause
+golang.org/x/term,https://cs.opensource.google/go/x/term/+/v0.31.0:LICENSE,BSD-3-Clause
