@@ -141,7 +141,7 @@ Extract pages 1 to 3 from `./tmp/test.pdf` and save images `./media/pics` reduce
 pdfjuicer -s ./tmp/test.pdf -o ./media/pics --pages=1-3 --scale=5
 ```
 
-Extract pages `-P` 2-5 from pdf document as images using default settings with thumbnails `-t` using shorthand flags`:
+Extract pages `-P` 2-5 from pdf document as images using default settings with thumbnails `-t` using shorthand flags:
 ```sh
 pdfjuicer -s ./tmp/test.pdf -o ./media/pics -t -P=2-5
 ```
