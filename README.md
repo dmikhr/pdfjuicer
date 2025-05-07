@@ -91,6 +91,32 @@ Miscellaneous
 
 *Default number of asynchronous workers is set by default to number (N) of logical CPU cores in your computer.
 
+## Installation
+
+Currently 2 options are available:
+* For macOS on Apple Silicon (M-series), pre-compiled binary is available in the **Releases** section
+* Build from source (Go v1.23+ required)
+
+### Build from source
+```bash
+# clone repository
+git clone https://github.com/dmikhr/pdfjuicer.git
+
+# go to source directory and create directory for binary
+cd pdfjuicer && mkdir bin
+
+# Download all dependencies defined in go.mod
+go mod download
+
+# build binary
+go build -o ./bin/pdfjuicer ./cmd
+
+#run binary
+./bin/pdfjuicer
+```
+
+In order to be able to call app from terminal simply by typing its name like in *Usage examples* section you can check the following article: [How to Add a Binary (or Executable, or Program) to Your PATH on macOS, Linux, or Windows](https://zwbetz.com/how-to-add-a-binary-to-your-path-on-macos-linux-windows/)
+
 ## Usage examples
 
 See help by calling app either without parameters
@@ -124,31 +150,3 @@ Extract pages 3,5,7-10,15,20-22 in jpg format with specific image and thumbnails
 ```sh
 pdfjuicer -s ./tmp/test.pdf -o ./media/pics -t --pages=3,5,7-10,15,20-22 --size=512x256 --tsize=128x64 --format=jpg
 ```
-
-## Installation
-
-Currently 2 options are available:
-* For macOS on Apple Silicon (M-series), pre-compiled binary is available in the **Releases** section
-* Build from source (Go v1.23+ required)
-
-### Build from source
-```bash
-# clone repository
-git clone https://github.com/dmikhr/pdfjuicer.git
-
-# go to source directory and create directory for binary
-cd pdfjuicer && mkdir bin
-
-# Download all dependencies defined in go.mod
-go mod download
-
-# build binary
-go build -o ./bin/pdfjuicer ./cmd
-
-#run binary
-./bin/pdfjuicer
-```
-
-In order to be able to call app from terminal simply by typing its name like in *Usage examples* section you can check the following article:
-
-[How to Add a Binary (or Executable, or Program) to Your PATH on macOS, Linux, or Windows](https://zwbetz.com/how-to-add-a-binary-to-your-path-on-macos-linux-windows/)
