@@ -3,11 +3,13 @@ package main
 import (
 	"fmt"
 	"sync"
+
+	"github.com/dmikhr/pdfjuicer/internal/extractor"
 )
 
 // Job contains data about Page processed and current page number
 type Job struct {
-	page    Page
+	page    extractor.Page
 	pageNum int
 }
 
@@ -29,7 +31,7 @@ func worker(id int, jobs <-chan Job, errors chan<- JobErr, done chan<- struct{},
 	}()
 
 	for job := range jobs {
-		err := job.page.extract(job.pageNum)
+		err := job.page.Extract(job.pageNum)
 		if err != nil {
 			errors <- JobErr{err: err, workerID: id}
 		}

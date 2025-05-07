@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
+	config "github.com/dmikhr/pdfjuicer/configs"
 	"github.com/gen2brain/go-fitz"
 
 	"github.com/dmikhr/pdfjuicer/internal/imageutils"
@@ -51,7 +52,7 @@ func (ps *Page) extract(pageNum int) error {
 	}
 
 	var dstImg, thumbnail *image.RGBA
-	if ps.scaleDown != imgScaleDownDefault {
+	if ps.scaleDown != config.ImgScaleDownDefault {
 		dstImg = imageutils.ScaleResize(srcImg, ps.scaleDown)
 	} else if ps.sizeX > 0 && ps.sizeY > 0 {
 		dstImg = imageutils.Resize(srcImg, ps.sizeX, ps.sizeY)
