@@ -10,19 +10,7 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     steps:
-        - name: Checkout code
-          uses: actions/checkout@v4
-          with:
-            ref: ${{ github.event.pull_request.head.ref || github.ref_name }}  # Use PR source branch or push branch
-
-        - name: Debug checkout
-          run: |
-            echo "Current branch: $(git rev-parse --abbrev-ref HEAD)"
-            echo "Repository contents:"
-            ls -la
-            echo "GitHub Event Name: ${{ github.event_name }}"
-            echo "GitHub Ref: ${{ github.ref }}"
-            echo "GitHub Head Ref: ${{ github.event.pull_request.head.ref }}"
+        - uses: actions/checkout@v4
 
         - name: Set up Go
           uses: actions/setup-go@v5
@@ -31,11 +19,7 @@ jobs:
             cache: true
 
         - name: Build
-          run: |
-                pwd
-                ls -la
-                mkdir -p ./bin
-                go build -o ./bin/pdfjuicer ./cmd
+          run: go build -o ./bin/pdfjuicer -v ./cmd
 
         - name: Test
           run: go test -v ./...
@@ -44,19 +28,8 @@ jobs:
     name: lint
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.ref || github.ref_name }}  # Use PR source branch or push branch
-
-      - name: Debug checkout
-        run: |
-          echo "Current branch: $(git rev-parse --abbrev-ref HEAD)"
-          echo "Repository contents:"
-          ls -la
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
         with:
           go-version: '1.23'
           cache: false
