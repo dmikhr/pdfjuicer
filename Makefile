@@ -24,4 +24,4 @@ go-lic-install:
 	GOBIN=$(LOCAL_BIN) go install github.com/google/go-licenses@v1.6.0
 
 third_party_licenses:
-	$(LOCAL_BIN)/go-licenses save ./... --save_path=./THIRD_PARTY_LICENSES
+	$(LOCAL_BIN)/go-licenses report ./... > THIRD_PARTY_LICENSES
