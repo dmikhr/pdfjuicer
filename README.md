@@ -35,7 +35,6 @@ Whether you're creating educational materials, preparing digital content, or nee
 The built-in thumbnail generation feature creates perfect preview images for content libraries, ensuring students and followers can quickly identify relevant materials before clicking through to full-size content.
 
 ### AI and Automation Integration
-The command-line interface makes PDF Pages Extractor an ideal component in automated workflows:
 
 - **OCR Processing Pipelines** - Extract PDF pages as images that can be fed directly into text recognition engines for data extraction
 - **n8n Workflow Integration** - Seamlessly incorporate into n8n automation workflows with simple command execution nodes
