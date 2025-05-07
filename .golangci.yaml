@@ -1,0 +1,36 @@
+run:
+  concurrency: 8
+  timeout: 5m
+  issues-exit-code: 1
+  tests: true
+  issues:
+    exclude-dirs:
+      - bin
+      - tmp
+
+output:
+  formats: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true
+
+linters-settings:
+  govet:
+    shadow: true
+  dupl:
+    threshold: 100
+  goconst:
+    min-len: 2
+    min-occurrences: 2
+
+linters:
+  disable-all: true
+  enable:
+    - errcheck
+    - goconst
+    - goimports
+    - gosec
+    - govet
+    - ineffassign
+    - revive
+    - typecheck
+    - unused
