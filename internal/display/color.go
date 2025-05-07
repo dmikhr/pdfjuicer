@@ -1,4 +1,4 @@
-package main
+package display
 
 import "fmt"
 
@@ -30,8 +30,8 @@ type formattedLabel interface {
 	~string | ~float64
 }
 
-// fbg formatting text in bold and color green
-func fbg[T formattedLabel](label T, noFormat bool) string {
+// Fbg formatting text in bold and color green
+func Fbg[T formattedLabel](label T, noFormat bool) string {
 	if s, ok := any(label).(string); ok {
 		return color(s, ColorGreen, true, noFormat)
 	}

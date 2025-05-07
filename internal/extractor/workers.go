@@ -1,39 +1,37 @@
-package main
+package extractor
 
 import (
 	"fmt"
 	"sync"
-
-	"github.com/dmikhr/pdfjuicer/internal/extractor"
 )
 
 // Job contains data about Page processed and current page number
 type Job struct {
-	page    extractor.Page
-	pageNum int
+	Page    Page
+	PageNum int
 }
 
 // JobErr stores error for workerID if occurs
 type JobErr struct {
-	err      error
-	workerID int
+	Err      error
+	WorkerID int
 }
 
-// worker process page extraction
-func worker(id int, jobs <-chan Job, errors chan<- JobErr, done chan<- struct{}, wg *sync.WaitGroup) {
+// Worker process page extraction
+func Worker(id int, jobs <-chan Job, errors chan<- JobErr, done chan<- struct{}, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	// panic recovery
 	defer func() {
 		if r := recover(); r != nil {
-			errors <- JobErr{err: fmt.Errorf("panic: %v", r), workerID: id}
+			errors <- JobErr{Err: fmt.Errorf("panic: %v", r), WorkerID: id}
 		}
 	}()
 
 	for job := range jobs {
-		err := job.page.Extract(job.pageNum)
+		err := job.Page.Extract(job.PageNum)
 		if err != nil {
-			errors <- JobErr{err: err, workerID: id}
+			errors <- JobErr{Err: err, WorkerID: id}
 		}
 		done <- struct{}{}
 	}

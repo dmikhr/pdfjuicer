@@ -1,4 +1,4 @@
-package main
+package extractor
 
 import (
 	"fmt"
@@ -14,70 +14,68 @@ import (
 	"github.com/dmikhr/pdfjuicer/internal/imageutils"
 )
 
-const thumbnailsDir = "thumbnails"
-
 // Page contains settings for page extraction as image and pointer to source doc
 type Page struct {
-	doc        *fitz.Document
-	imgType    string
-	savePath   string
-	prefix     string
-	postfix    string
-	scaleDown  float64
-	sizeX      int
-	sizeY      int
-	thumbnails Thumbnail
+	Doc        *fitz.Document
+	ImgType    string
+	SavePath   string
+	Prefix     string
+	Postfix    string
+	ScaleDown  float64
+	SizeX      int
+	SizeY      int
+	Thumbnails Thumbnail
 }
 
 // Thumbnail contains settings for thimbnails
 type Thumbnail struct {
-	isActive  bool
-	scaleDown float64
-	sizeX     int
-	sizeY     int
+	IsActive  bool
+	ScaleDown float64
+	SizeX     int
+	SizeY     int
 }
 
-// extract page from pdf document as image
-func (ps *Page) extract(pageNum int) error {
-	srcImg, err := ps.doc.Image(pageNum)
+// Extract page from pdf document as image
+func (ps *Page) Extract(pageNum int) error {
+	srcImg, err := ps.Doc.Image(pageNum)
 	if err != nil {
 		return err
 	}
 
-	imageFName := fmt.Sprintf("%s%03d%s.%s", ps.prefix, pageNum+1, ps.postfix, ps.imgType)
-	imagePath := filepath.Join(ps.savePath, imageFName)
+	imageFName := fmt.Sprintf("%s%03d%s.%s", ps.Prefix, pageNum+1, ps.Postfix, ps.ImgType)
+	imagePath := filepath.Join(ps.SavePath, imageFName)
 	f, err := os.Create(imagePath)
 	if err != nil {
 		return err
 	}
 
 	var dstImg, thumbnail *image.RGBA
-	if ps.scaleDown != config.ImgScaleDownDefault {
-		dstImg = imageutils.ScaleResize(srcImg, ps.scaleDown)
-	} else if ps.sizeX > 0 && ps.sizeY > 0 {
-		dstImg = imageutils.Resize(srcImg, ps.sizeX, ps.sizeY)
+	if ps.ScaleDown != config.ImgScaleDownDefault {
+		dstImg = imageutils.ScaleResize(srcImg, ps.ScaleDown)
+	} else if ps.SizeX > 0 && ps.SizeY > 0 {
+		dstImg = imageutils.Resize(srcImg, ps.SizeX, ps.SizeY)
 	} else {
 		dstImg = srcImg
 	}
 
-	err = saveImg(f, ps.imgType, dstImg)
+	err = saveImg(f, ps.ImgType, dstImg)
 	if err != nil {
 		return err
 	}
 
-	if ps.thumbnails.isActive {
-		f, err = os.Create(filepath.Join(ps.savePath, thumbnailsDir,
-			fmt.Sprintf("thumbnail_%03d.%s", pageNum+1, ps.imgType)))
+	if ps.Thumbnails.IsActive {
+		f, err = os.Create(filepath.Join(ps.SavePath, config.ThumbnailsDir,
+			fmt.Sprintf("thumbnail_%03d.%s", pageNum+1, ps.ImgType)))
 		if err != nil {
 			return err
 		}
 
-		if ps.thumbnails.sizeX > 0 && ps.thumbnails.sizeY > 0 {
-			thumbnail = imageutils.Resize(srcImg, ps.thumbnails.sizeX, ps.thumbnails.sizeY)
+		if ps.Thumbnails.SizeX > 0 && ps.Thumbnails.SizeY > 0 {
+			thumbnail = imageutils.Resize(srcImg, ps.Thumbnails.SizeX, ps.Thumbnails.SizeY)
 		} else {
-			thumbnail = imageutils.ScaleResize(srcImg, ps.thumbnails.scaleDown)
+			thumbnail = imageutils.ScaleResize(srcImg, ps.Thumbnails.ScaleDown)
 		}
-		err = saveImg(f, ps.imgType, thumbnail)
+		err = saveImg(f, ps.ImgType, thumbnail)
 		if err != nil {
 			return err
 		}
