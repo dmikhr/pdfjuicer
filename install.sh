@@ -26,7 +26,7 @@ source="$workdir/$source_bin_dir/$binary_file"
 # create personal bin dir if not exists
 echo "Creating directory $target_bin_dir for binary (if not exist)"
 if ! $dry_run; then
-  mkdir -p target_bin_dir
+  mkdir -p "$target_bin_dir"
 fi
 
 # copying to
