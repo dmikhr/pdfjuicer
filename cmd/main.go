@@ -63,10 +63,16 @@ func main() {
 	pflag.Parse()
 
 	// show help if called with no params
-	if pflag.NFlag() == 0 {
+	if pflag.NFlag() == 0 && pflag.NArg() == 0 {
 		fmt.Println(config.About())
 		pflag.Usage()
 		os.Exit(0)
+	}
+
+	// if called with unsupported arguments
+	if pflag.NFlag() == 0 && pflag.NArg() > 0 {
+		fmt.Printf("Unsupported arguments: %s\n", pflag.Args())
+		os.Exit(1)
 	}
 
 	if cfg.VersionFlag {
