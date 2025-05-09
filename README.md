@@ -131,15 +131,31 @@ go build -o ./bin/pdfjuicer ./cmd
 
 In order to be able to call app from terminal simply by typing its name like in *Usage examples* use installation script `install.sh`.
 
-It is recommended to run it with `--dry-run` flag first to check if installation script works properly. In this mode you will see all messages that are shown during installation but without actual installation.
+Put `install.sh` in the directory with app binary `pdfjuicer`
 
-```
+It is recommended first to run `install.sh` with `--dry-run` flag to check if installation script works properly. In this mode you will see all messages that are shown during installation but without actual installation.
+
+```bash
+# testing script
 bash ./install.sh --dry-run
 
+# actual installation
 bash ./install.sh
 ```
 
-Alternatively you can add app to PATH manually. Check the following article for details: [How to Add a Binary (or Executable, or Program) to Your PATH on macOS, Linux, or Windows](https://zwbetz.com/how-to-add-a-binary-to-your-path-on-macos-linux-windows/)
+⚠️ **Important!** If you build app from source yourself call installation script with `--dev` flag since compiled binary is saved not in the same directory where `install.sh` is located and `--dev` flag takes care of it.
+
+```bash
+# testing script
+bash ./install.sh --dev --dry-run
+
+# actual installation
+bash ./install.sh --dev
+```
+
+After installation you will need to add app to PATH. Check the following article for details: [How to Add a Binary (or Executable, or Program) to Your PATH on macOS, Linux, or Windows](https://zwbetz.com/how-to-add-a-binary-to-your-path-on-macos-linux-windows/)
+
+**tl;dr**: add `export PATH="$PATH:path_to_dir_with_binary"` to shell configuration file depending on your shell (typically .bashrc, .bash_profile, .profile or .zshrc).
 
 ## Usage examples
 
