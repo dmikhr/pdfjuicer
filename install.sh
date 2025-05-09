@@ -9,19 +9,24 @@ color_red="\033[31m"
 # if you call install.sh --dry-run script will show all messages but without actual installation
 # use it to ensure that script functions correctly
 dry_run=false
-if [ "$1" = "--dry-run" ]; then
-    printf "${bold}${color_red}This is dry run, no actual actions will be performaed. Use this for testing installation script.${reset}\n"
+if [ "$1" = "--dry-run" ] || [ "$2" = "--dry-run" ]; then
+    printf "${bold}${color_red}This is dry run, no actual actions will be performed. Use this for testing installation script.${reset}\n"
     dry_run=true
 fi
 
 # path settings
 workdir=$(pwd)
-source_bin_dir="bin"
-binary_file="pdfjuicer"
+
+if [ "$1" = "--dev" ] || [ "$2" = "--dev" ]; then
+  binary_file="bin/pdfjuicer"
+else
+  binary_file="pdfjuicer"
+fi
+
 target_bin_dir="$HOME/bin/"
 
 # path to compiled binary
-source="$workdir/$source_bin_dir/$binary_file"
+source="$workdir/$binary_file"
 
 # create personal bin dir if not exists
 echo "Creating directory $target_bin_dir for binary (if not exist)"
