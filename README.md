@@ -26,6 +26,14 @@ Pdfjuicer was designed with content creators and educators in mind, providing ea
 
 Whether you're creating educational materials, preparing digital content, or need to quickly extract visuals from documentation, **Pdfjuicer** provides a straightforward command-line interface to transform your PDFs into usable image assets.
 
+## Table of Contents
+- [Example use cases](#example-use-cases)
+- [Commands](#commands)
+- [Installation](#installation)
+    - [Build from source](#build-from-source)
+    - [Adding app to PATH](#adding-app-to-path)
+- [Usage examples](#usage-examples)
+
 ## Example use cases
 
 ### Content Creation for Digital Platforms
