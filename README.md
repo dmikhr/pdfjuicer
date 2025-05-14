@@ -20,6 +20,9 @@ A fast and flexible command-line tool for extracting pages from PDF documents as
 
 Built with Go, app leverages the speed of a compiled language and concurrent processing via goroutines.
 
+Demo:
+[![asciicast](https://asciinema.org/a/lSsAK69Xl0yzFnQqpxT73kbX4.svg)](https://asciinema.org/a/lSsAK69Xl0yzFnQqpxT73kbX4)
+
 ## About
 
 Pdfjuicer was designed with content creators and educators in mind, providing easy ways to extract visual content from PDF documents for presentations, course materials, and digital content creation.
