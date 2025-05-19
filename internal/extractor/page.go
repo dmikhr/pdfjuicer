@@ -27,7 +27,7 @@ type Page struct {
 	Thumbnails Thumbnail
 }
 
-// Thumbnail contains settings for thimbnails
+// Thumbnail contains settings for thumbnails
 type Thumbnail struct {
 	IsActive  bool
 	ScaleDown float64
