@@ -20,7 +20,7 @@ A fast and flexible command-line tool for extracting pages from PDF documents as
 
 Built with Go, app leverages the speed of a compiled language and concurrent processing via goroutines.
 
-📺 **[Watch video demo on Asciinema](https://asciinema.org/a/lSsAK69Xl0yzFnQqpxT73kbX4)**
+📺 **[Watch video demo on Asciinema](https://asciinema.org/a/hv5p8Qs4KJxY3MOIz6BskBRqA)**
 
 ## About
 
