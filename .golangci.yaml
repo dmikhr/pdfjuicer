@@ -3,19 +3,13 @@ run:
   timeout: 5m
   issues-exit-code: 1
   tests: true
-  issues:
-    exclude-dirs:
-      - bin
-      - tmp
 
-output:
-  formats: colored-line-number
-  print-issued-lines: true
-  print-linter-name: true
+issues:
+  exclude-dirs:
+    - bin
+    - tmp
 
 linters-settings:
-  govet:
-    shadow: true
   dupl:
     threshold: 100
   goconst:

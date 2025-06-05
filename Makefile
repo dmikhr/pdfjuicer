@@ -18,7 +18,10 @@ install-golangci-lint:
 	GOBIN=$(LOCAL_BIN) go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.64.8
 
 lint:
-	$(LOCAL_BIN)/golangci-lint run ./...
+	$(LOCAL_BIN)/golangci-lint run --config=.golangci.yaml ./...
+
+validate-lint-config:
+	$(LOCAL_BIN)/golangci-lint config verify --config=.golangci.yaml
 
 go-lic-install:
 	GOBIN=$(LOCAL_BIN) go install github.com/google/go-licenses@v1.6.0
