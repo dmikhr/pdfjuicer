@@ -1,0 +1,49 @@
+name: Go CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+        - uses: actions/checkout@v4
+
+        - name: Set up Go
+          uses: actions/setup-go@v5
+          with:
+            go-version: '1.23'
+            cache: true
+
+        - name: Build
+          run: go build -o ./bin/pdfjuicer ./cmd
+
+        - name: Verify Build Output
+          run: |
+              if [ ! -f ./bin/pdfjuicer ]; then
+                echo "Build failed: pdfjuicer binary not found"
+                exit 1
+              fi
+                echo "Build verification successful"
+    
+        - name: Test
+          run: go test -v ./...
+
+  linter:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+          cache: true
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.64.8
+          args: --timeout=5m --config=.golangci.yaml
