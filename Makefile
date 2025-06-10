@@ -3,7 +3,7 @@ LOCAL_BIN:=$(CURDIR)/bin
 .PHONY: third_party_licenses go-lic lint install-golangci-lint test build build-run run
 
 run:
-	go run ./bin/pdfjuicer
+	./bin/pdfjuicer
 
 build:
 	go build -o ./bin/pdfjuicer
