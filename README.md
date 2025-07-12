@@ -1,8 +1,9 @@
 # pdfjuicer
 
-[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![License](https://img.shields.io/github/license/dmikhr/pdfjuicer.svg)](LICENSE)
 ![GitHub Release](https://img.shields.io/github/v/release/dmikhr/pdfjuicer)
 [![Made with Go](https://img.shields.io/badge/Made%20with-Go-1f425f.svg)](https://go.dev/)
+[![Go Reference](https://pkg.go.dev/badge/github.com/dmikhr/pdfjuicer.svg)](https://pkg.go.dev/github.com/dmikhr/pdfjuicer)
 
 ![demo](assets/pdfjuicer_action.png)
 
