@@ -6,7 +6,7 @@ run:
 	./bin/pdfjuicer
 
 build:
-	go build -o ./bin/pdfjuicer
+	go build -o ./bin/pdfjuicer ./cmd
 
 build-run:
 	go build -o ./bin/pdfjuicer ./cmd && ./bin/pdfjuicer
