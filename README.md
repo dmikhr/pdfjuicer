@@ -21,6 +21,8 @@ A fast and flexible command-line tool for extracting pages from PDF documents as
 
 Built with Go, app leverages the speed of a compiled language and concurrent processing via goroutines.
 
+🌟 Featured in [Awesome Command Line (CLI/TUI) Programs](https://github.com/toolleeo/awesome-cli-apps-in-a-csv?tab=readme-ov-file#office-tools) catalog 🌟
+
 📺 **[Watch video demo on Asciinema](https://asciinema.org/a/hv5p8Qs4KJxY3MOIz6BskBRqA)**
 
 ## About
