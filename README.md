@@ -5,6 +5,8 @@
 [![Made with Go](https://img.shields.io/badge/Made%20with-Go-1f425f.svg)](https://go.dev/)
 [![Go Reference](https://pkg.go.dev/badge/github.com/dmikhr/pdfjuicer.svg)](https://pkg.go.dev/github.com/dmikhr/pdfjuicer)
 
+🌟 Featured in [Awesome Command Line (CLI/TUI) Programs](https://github.com/toolleeo/awesome-cli-apps-in-a-csv?tab=readme-ov-file#office-tools) catalog 🌟
+
 ![demo](assets/pdfjuicer_action.png)
 
 A fast and flexible command-line tool for extracting pages from PDF documents as high-quality images. This utility allows you to quickly convert PDF content into various image formats with extensive customization options.
@@ -20,8 +22,6 @@ A fast and flexible command-line tool for extracting pages from PDF documents as
 ✅ Asynchronous processing for faster extraction
 
 Built with Go, app leverages the speed of a compiled language and concurrent processing via goroutines.
-
-🌟 Featured in [Awesome Command Line (CLI/TUI) Programs](https://github.com/toolleeo/awesome-cli-apps-in-a-csv?tab=readme-ov-file#office-tools) catalog 🌟
 
 📺 **[Watch video demo on Asciinema](https://asciinema.org/a/hv5p8Qs4KJxY3MOIz6BskBRqA)**
 
