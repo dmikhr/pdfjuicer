@@ -5,9 +5,9 @@
 [![Made with Go](https://img.shields.io/badge/Made%20with-Go-1f425f.svg)](https://go.dev/)
 [![Go Reference](https://pkg.go.dev/badge/github.com/dmikhr/pdfjuicer.svg)](https://pkg.go.dev/github.com/dmikhr/pdfjuicer)
 
-🚀 Listed in **[Awesome CLI Apps](https://github.com/agarrharr/awesome-cli-apps?tab=readme-ov-file)** - A curated list of command line apps
+🏆 Listed in **[Awesome CLI Apps](https://github.com/agarrharr/awesome-cli-apps?tab=readme-ov-file)** - A curated list of command line apps
 
-🌟 Featured in [Awesome Command Line (CLI/TUI) Programs](https://github.com/toolleeo/awesome-cli-apps-in-a-csv?tab=readme-ov-file#office-tools) catalog 🌟
+🚀  Featured in [Awesome Command Line (CLI/TUI) Programs](https://github.com/toolleeo/awesome-cli-apps-in-a-csv?tab=readme-ov-file#office-tools) catalog
 
 ![demo](assets/pdfjuicer_action.png)
 
